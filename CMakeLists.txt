@@ -14,10 +14,11 @@ if(MSVC)
 endif()
 
 find_package(glfw3 3.3 REQUIRED)
-include_directories(${GLFW_INCLUDE_DIR})
+find_package(glm 0.9.9.9 REQUIRED)
 
 add_subdirectory(libs/glad)
 
-add_executable(game_of_life WIN32 main.cpp) #win32 for console window hide
+#TODO: WIN32 only for release
+add_executable(game_of_life main.cpp) #win32 for console window hide
 
-target_link_libraries(${PROJECT_NAME} glfw glad)
+target_link_libraries(${PROJECT_NAME} glfw glad glm::glm)
