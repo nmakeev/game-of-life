@@ -1,6 +1,7 @@
-#include <glad/glad.h>
+#include "glad/glad.h"
+#include "graphics/resource_manager.h"
+#include "graphics/renderer.h"
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
 
 #include <iostream>
 
@@ -54,6 +55,21 @@ int main(int argc, char *argv[])
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
 
+    ResourceManager resourceManager;
+
+    //-------------------
+
+    resourceManager.LoadShader("res/quad.vert", "res/quad.frag", nullptr, "quad");
+    // configure shaders
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(SCREEN_WIDTH), static_cast<float>(SCREEN_HEIGHT), 0.0f, -1.0f, 1.0f);
+    auto shader = resourceManager.GetShader("quad");
+    shader->Use();
+    shader->SetMatrix4("projection", projection);
+
+    Renderer renderer { shader };
+
+    //-------------------
+
     while (!glfwWindowShouldClose(window))
     {
         // calculate delta time
@@ -65,8 +81,11 @@ int main(int argc, char *argv[])
 
         // render
         // ------
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        int size = 100;
+        renderer.DrawSprite(glm::vec2(SCREEN_WIDTH / 2 - size / 2, SCREEN_HEIGHT / 2 - size / 2), glm::vec2(size, size), glm::vec4(1, 0, 0, 1));
 
         glfwSwapBuffers(window);
     }
