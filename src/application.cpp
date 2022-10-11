@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -12,14 +13,20 @@
 // GLFW function declarations
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
 bool projection_changed = false;
 
 ScreenSettings screenSettings { 800, 600 };
 Camera camera {screenSettings};
 
-bool leftPressed = false;
-bool rightPressed = false;
+const float maxZoom = 1.f;
+const float minZoom = .05f;
+const float zoomStep = .1f;
+
+bool drag = false;
 
 void updateProjection(const ResourceManager& resourceManager)
 {
@@ -28,27 +35,29 @@ void updateProjection(const ResourceManager& resourceManager)
     shader->SetMatrix4("projection", camera.GetProjectionMatrix());
 }
 
-void Application::Run()
-{
+void Application::Run() {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, false);
 
-    GLFWwindow* window = glfwCreateWindow(screenSettings.GetWidth(), screenSettings.GetHeight(), "Game of Life", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(screenSettings.GetWidth(), screenSettings.GetHeight(), "Game of Life",
+                                          nullptr, nullptr);
     glfwMakeContextCurrent(window);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
+    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return;
     }
 
     glfwSetKeyCallback(window, key_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetCursorPosCallback(window, cursor_position_callback);
 
     // OpenGL configuration
     // --------------------
@@ -71,12 +80,11 @@ void Application::Run()
     updateProjection(resourceManager);
 
     auto shader = resourceManager.GetShader("quad");
-    Renderer renderer { shader };
+    Renderer renderer{shader};
 
     //-------------------
 
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         // calculate delta time
         // --------------------
         float currentFrame = glfwGetTime();
@@ -89,30 +97,13 @@ void Application::Run()
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        if (leftPressed)
-        {
-            auto position = camera.GetPosition();
-            position.x += 2.f;
-            camera.SetPosition(position);
-            projection_changed = true;
-        }
-
-        if (rightPressed)
-        {
-            auto position = camera.GetPosition();
-            position.x -= 2.f;
-            camera.SetPosition(position);
-            projection_changed = true;
-        }
-
-        if (projection_changed)
-        {
+        if (projection_changed) {
             updateProjection(resourceManager);
             projection_changed = false;
         }
 
         int size = 100;
-        renderer.DrawRectangle(glm::vec2(-size/2, -size/2),
+        renderer.DrawRectangle(glm::vec2(-size / 2, -size / 2),
                                glm::vec2(size, size), glm::vec4(1, 0, 0, 1));
 
         glfwSwapBuffers(window);
@@ -121,29 +112,48 @@ void Application::Run()
     glfwTerminate();
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
-{
-    // when a user presses the escape key, we set the WindowShouldClose property to true, closing the application
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
-    if (key == GLFW_KEY_LEFT)
-    {
-        leftPressed = action != GLFW_RELEASE;
-        return;
-    }
-
-    if (key == GLFW_KEY_RIGHT)
-    {
-        rightPressed = action != GLFW_RELEASE;
-        return;
-    }
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
 
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
+{
+    float newZoom = camera.GetZoom() + yOffset * zoomStep;
+    newZoom = std::clamp(newZoom, minZoom, maxZoom);
+    camera.SetZoom(newZoom);
+    projection_changed = true;
+}
+
+double xOrigin = 0;
+double yOrigin = 0;
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        drag = action == GLFW_PRESS;
+        glfwGetCursorPos(window, &xOrigin, &yOrigin);
+    }
+}
+
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (drag) {
+        double xDelta = -(xpos - xOrigin);
+        double yDelta = -(ypos - yOrigin);
+
+        auto position = camera.GetPosition();
+        position.x += xDelta;
+        position.y += yDelta;
+        camera.SetPosition(position);
+
+        projection_changed = true;
+
+        xOrigin = xpos;
+        yOrigin = ypos;
+    }
+}
