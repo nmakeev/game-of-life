@@ -22,7 +22,7 @@ Shader* ResourceManager::LoadShader(const char *vShaderFile, const char *fShader
     return value.get();
 }
 
-Shader* ResourceManager::GetShader(const std::string& name)
+Shader* ResourceManager::GetShader(const std::string& name) const
 {
     auto& result = m_shaders.at(name);
     return result.get();

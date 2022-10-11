@@ -14,8 +14,6 @@
 #include <string>
 #include <memory>
 
-#include <glad/glad.h>
-
 #include "shader.h"
 
 class ResourceManager {
@@ -28,7 +26,7 @@ public:
     ResourceManager& operator=(const ResourceManager&) = delete;
 
     Shader* LoadShader(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile, const std::string& name);
-    Shader* GetShader(const std::string& name);
+    Shader* GetShader(const std::string& name) const;
 
     void Clear();
 

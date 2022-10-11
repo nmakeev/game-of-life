@@ -11,7 +11,6 @@
 #define GAME_OF_LIFE_SHADER_H
 
 #include <string>
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -20,8 +19,6 @@ class Shader {
 public:
     Shader();
     ~Shader();
-
-    Shader(Shader&& shader);
 
     // sets the current shader as active
     Shader &Use();

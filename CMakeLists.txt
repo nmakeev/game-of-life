@@ -28,7 +28,7 @@ SET(SRC_LIST src/main.cpp
         src/graphics/resource_manager.cpp
         src/graphics/resource_manager.h
         src/graphics/renderer.cpp
-        src/graphics/renderer.h)
+        src/graphics/renderer.h src/application.cpp src/application.h src/graphics/camera.cpp src/graphics/camera.h src/graphics/screen_settings.cpp src/graphics/screen_settings.h)
 
 add_executable(${PROJECT_NAME} ${PROJECT_WIN32} ${SRC_LIST}) #win32 for console window hide
 

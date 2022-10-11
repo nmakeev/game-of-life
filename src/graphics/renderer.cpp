@@ -1,3 +1,5 @@
+#include <glad/glad.h>
+
 #include "renderer.h"
 
 Renderer::Renderer(Shader* shader) : m_shader(shader), m_quadVAO(0)
@@ -10,16 +12,14 @@ Renderer::~Renderer()
     glDeleteVertexArrays(1, &m_quadVAO);
 }
 
-void Renderer::DrawSprite(glm::vec2 position, glm::vec2 size, glm::vec4 color)
+void Renderer::DrawRectangle(glm::vec2 position, glm::vec2 size, glm::vec4 color)
 {
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(position, 0.0f));  // first translate (transformations are: scale happens first, then rotation, and then final translation happens; reversed order)
+    model = glm::translate(model, glm::vec3(position, 0.0f));
+    model = glm::scale(model, glm::vec3(size, 1.0f));
 
-    model = glm::scale(model, glm::vec3(size, 1.0f)); // last scale
-
-    std::string model_parameter = "model";
     m_shader->Use();
-    m_shader->SetMatrix4(model_parameter.c_str(), model);
+    m_shader->SetMatrix4("model", model);
     m_shader->SetVector4f("quad_color", color);
 
     glBindVertexArray(m_quadVAO);
