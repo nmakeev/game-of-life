@@ -4,7 +4,7 @@
 
 Renderer::Renderer(Shader* shader) : m_shader(shader), m_quadVAO(0)
 {
-    this->initRenderData();
+    //this->initRenderData();
 }
 
 Renderer::~Renderer()
@@ -12,15 +12,15 @@ Renderer::~Renderer()
     glDeleteVertexArrays(1, &m_quadVAO);
 }
 
-void Renderer::DrawRectangle(glm::vec2 position, glm::vec2 size, glm::vec4 color)
+void Renderer::DrawRectangle(glm::vec2 position, glm::vec2 size/*, glm::vec4 color*/)
 {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(position, 0.0f));
     model = glm::scale(model, glm::vec3(size, 1.0f));
 
-    m_shader->Use();
-    m_shader->SetMatrix4("model", model);
-    m_shader->SetVector4f("quad_color", color);
+    //m_shader->Use();
+    //m_shader->SetMatrix4("model", model);
+//    m_shader->SetVector4f("quad_color", color);
 
     glBindVertexArray(m_quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);

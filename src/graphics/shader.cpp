@@ -121,6 +121,8 @@ void Shader::SetVector4f(const char *name, const glm::vec4 &value, bool useShade
 {
     if (useShader)
         this->Use();
+    auto location = glGetUniformLocation(m_id, name);
+    std::cout << "ShaderId = " << m_id << ", name = " << name << ", location = " << location << std::endl;
     glUniform4f(glGetUniformLocation(m_id, name), value.x, value.y, value.z, value.w);
 }
 
@@ -128,6 +130,8 @@ void Shader::SetMatrix4(const char *name, const glm::mat4 &matrix, bool useShade
 {
     if (useShader)
         this->Use();
+    auto location = glGetUniformLocation(m_id, name);
+    std::cout << "ShaderId = " << m_id << ", name = " << name << ", location = " << location << std::endl;
     glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, false, glm::value_ptr(matrix));
 }
 

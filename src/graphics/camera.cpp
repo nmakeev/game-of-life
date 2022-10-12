@@ -31,5 +31,6 @@ glm::mat4x4 Camera::GetProjectionMatrix() const {
     float bottom = m_position.y + half_height;
 
     glm::mat4 projection = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
-    return glm::scale(projection, glm::vec3(m_zoom, m_zoom, m_zoom));
+    return projection;
+    //return glm::scale(projection, glm::vec3(m_zoom, m_zoom, m_zoom));
 }

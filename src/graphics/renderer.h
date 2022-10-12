@@ -17,7 +17,7 @@ public:
     Renderer(Shader* shader);
     ~Renderer();
 
-    void DrawRectangle(glm::vec2 position, glm::vec2 size = glm::vec2(10.0f, 10.0f), glm::vec4 color = glm::vec4(1.0f));
+    void DrawRectangle(glm::vec2 position, glm::vec2 size = glm::vec2(10.0f, 10.0f)/*, glm::vec4 color = glm::vec4(1.0f)*/);
 private:
     // Render state
     Shader* m_shader;
